@@ -119,6 +119,7 @@ const void * const MDCViewStateKey = &MDCViewStateKey;
             if (disableRight) {
               [self mdc_returnToOriginalCenter];
               [self mdc_executeOnPanBlockForTranslation:CGPointZero];
+              break;
             }
         case MDCSwipeDirectionLeft: {
             CGPoint translation = MDCCGPointSubtract(self.center,
