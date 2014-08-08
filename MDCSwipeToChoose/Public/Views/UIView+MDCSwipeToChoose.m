@@ -48,7 +48,7 @@ const void * const MDCViewStateKey = &MDCViewStateKey;
 
     // A swipe in no particular direction "finalizes" the swipe.
     if (direction == MDCSwipeDirectionNone) {
-        [self mdc_finalizePosition];
+        [self mdc_finalizePositionDisableSwipeRight:NO];
         return;
     }
 
@@ -65,7 +65,7 @@ const void * const MDCViewStateKey = &MDCViewStateKey;
 
     // Finalize upon completion of the animations.
     void (^completion)(BOOL) = ^(BOOL finished) {
-        if (finished) { [self mdc_finalizePosition]; }
+        if (finished) { [self mdc_finalizePositionDisableSwipeRight:NO]; }
     };
 
     [UIView animateWithDuration:self.mdc_options.swipeAnimationDuration
@@ -111,17 +111,21 @@ const void * const MDCViewStateKey = &MDCViewStateKey;
 
 #pragma mark Translation
 
-- (void)mdc_finalizePosition {
+- (void)mdc_finalizePositionDisableSwipeRight:(BOOL)disableRight {
     MDCSwipeDirection direction = [self mdc_directionOfExceededThreshold];
     switch (direction) {
+        case MDCSwipeDirectionRight:
+            // Disable swipe right.
+            if (disableRight) {
+              [self mdc_returnToOriginalCenter];
+              [self mdc_executeOnPanBlockForTranslation:CGPointZero];
+            }
         case MDCSwipeDirectionLeft: {
             CGPoint translation = MDCCGPointSubtract(self.center,
                                                      self.mdc_viewState.originalCenter);
             [self mdc_exitSuperviewFromTranslation:translation];
             break;
         }
-        case MDCSwipeDirectionRight:
-            // Disable swipe right.
         case MDCSwipeDirectionNone:
             [self mdc_returnToOriginalCenter];
             [self mdc_executeOnPanBlockForTranslation:CGPointZero];
@@ -240,7 +244,7 @@ const void * const MDCViewStateKey = &MDCViewStateKey;
         }
     } else if (panGestureRecognizer.state == UIGestureRecognizerStateEnded) {
         // Either move the view back to its original position or move it off screen.
-        [self mdc_finalizePosition];
+        [self mdc_finalizePositionDisableSwipeRight:YES];
     } else {
         // Update the position and transform. Then, notify any listeners of
         // the updates via the pan block.
