@@ -114,13 +114,14 @@ const void * const MDCViewStateKey = &MDCViewStateKey;
 - (void)mdc_finalizePosition {
     MDCSwipeDirection direction = [self mdc_directionOfExceededThreshold];
     switch (direction) {
-        case MDCSwipeDirectionRight:
         case MDCSwipeDirectionLeft: {
             CGPoint translation = MDCCGPointSubtract(self.center,
                                                      self.mdc_viewState.originalCenter);
             [self mdc_exitSuperviewFromTranslation:translation];
             break;
         }
+        case MDCSwipeDirectionRight:
+            // Disable swipe right.
         case MDCSwipeDirectionNone:
             [self mdc_returnToOriginalCenter];
             [self mdc_executeOnPanBlockForTranslation:CGPointZero];
